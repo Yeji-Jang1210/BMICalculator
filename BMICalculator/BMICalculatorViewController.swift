@@ -52,7 +52,7 @@ class BMICalculatorViewController: UIViewController {
                     type = ""
                 }
                 
-                return "\(type)입니다."
+                return "\(String(format: "%.2f", value))로 \(type)입니다."
             }
         }
     }
@@ -64,8 +64,6 @@ class BMICalculatorViewController: UIViewController {
     @IBOutlet var weightTextField: UITextField!
     @IBOutlet var hideWeightValueButton: UIButton!
     @IBOutlet var resultButton: UIButton!
-    @IBOutlet var heightStatusLabel: UILabel!
-    @IBOutlet var weightStatusLabel: UILabel!
     
     var isHideWeight: Bool = true
     
