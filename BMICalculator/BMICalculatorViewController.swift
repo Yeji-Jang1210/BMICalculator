@@ -58,12 +58,20 @@ class BMICalculatorViewController: UIViewController {
     }
     
     @IBOutlet var subTitleLabel: UILabel!
+    
+    @IBOutlet var nicknameView: UIView!
+    @IBOutlet var nicknameTextField: UITextField!
+    @IBOutlet var nicknameSaveButton: UIButton!
+    
     @IBOutlet var heightView: UIView!
     @IBOutlet var heightTextField: UITextField!
+    
     @IBOutlet var weightView: UIView!
     @IBOutlet var weightTextField: UITextField!
     @IBOutlet var hideWeightValueButton: UIButton!
+    
     @IBOutlet var resultButton: UIButton!
+    @IBOutlet var resetButton: UIButton!
     
     var isHideWeight: Bool = true
     
@@ -76,18 +84,40 @@ class BMICalculatorViewController: UIViewController {
     private func setupUI(){
         subTitleLabel.text = "당신의 BMI 지수를\n알려드릴게요."
         
+        setTextFieldUI(textField: nicknameTextField, backgroundView: nicknameView, placehorder: "이름을 알려주세요.")
         setTextFieldUI(textField: heightTextField, backgroundView: heightView, placehorder: "cm 단위로 입력해 주세요.")
         setTextFieldUI(textField: weightTextField, backgroundView: weightView, placehorder: "kg 단위로 입력해 주세요.")
         hideWeightValueButtonTapped(hideWeightValueButton)
         
+        nicknameSaveButton.layer.cornerRadius = 15
+        resetButton.layer.cornerRadius = 15
         resultButton.layer.cornerRadius = 15
         resultButton.titleLabel?.font = .systemFont(ofSize: 18)
+        
     }
     
     private func setData(){
+        nicknameTextField.text = UserDefaults.standard.string(forKey: "nickname")
         heightTextField.text = convertDoubleToString(UserDefaults.standard.double(forKey: "height"))
         weightTextField.text = convertDoubleToString(UserDefaults.standard.double(forKey: "weight"))
     }
+    
+    @IBAction func nicknameSaveButtonTapped(_ sender: UIButton) {
+        let alert = UIAlertController(title: "닉네임 저장", message: "저장하시겠습니까?", preferredStyle: .alert)
+        
+        let saveAction = UIAlertAction(title: "확인", style: .default) { action in
+            UserDefaults.standard.set(self.nicknameTextField.text, forKey: "nickname")
+            self.nicknameTextField.endEditing(true)
+        }
+        
+        let cancelAction = UIAlertAction(title: "취소", style: .default)
+        
+        alert.addAction(saveAction)
+        alert.addAction(cancelAction)
+        
+        present(alert, animated: true)
+    }
+    
     
     @IBAction func randomButtonTapped(_ sender: UIButton) {
         let randomHeight = Double.random(in: 100...250)
@@ -138,6 +168,29 @@ class BMICalculatorViewController: UIViewController {
         isHideWeight.toggle()
     }
     
+    @IBAction func resetButtonTapped(_ sender: UIButton) {
+        let alert = UIAlertController(title: "초기화", message: "초기화 하시겠습니까?", preferredStyle: .alert)
+        
+        let saveAction = UIAlertAction(title: "확인", style: .default) { action in
+            UserDefaults.standard.removeObject(forKey: "nickname")
+            UserDefaults.standard.removeObject(forKey: "height")
+            UserDefaults.standard.removeObject(forKey: "weight")
+            
+            self.nicknameTextField.text = ""
+            self.heightTextField.text = ""
+            self.weightTextField.text = ""
+            
+        }
+        
+        let cancelAction = UIAlertAction(title: "취소", style: .default)
+        
+        alert.addAction(saveAction)
+        alert.addAction(cancelAction)
+        
+        present(alert, animated: true)
+    }
+    
+    
     private func presentCalculateBMIValue(height: Double, weight: Double){
         let bmi = weight / ((height * height) * 0.0001)
         setAlert(type:.calculatedValue(bmiValue: bmi))
@@ -166,7 +219,7 @@ class BMICalculatorViewController: UIViewController {
         UserDefaults.standard.set(weight, forKey: "weight")
     }
     
-    private func convertDoubleToString(_ value: Double) -> String{
-        return String(format: "%.2f", value)
+    private func convertDoubleToString(_ value: Double) -> String?{
+        return value == 0 ? nil : String(format: "%.2f", value)
     }
 }
