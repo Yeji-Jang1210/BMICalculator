@@ -14,7 +14,7 @@ class BMICalculatorViewController: UIViewController {
         case invalidValue
         case invalidHeightRange
         case invalidWeightRange
-        case calculatedValue(type: String)
+        case calculatedValue(bmiValue: Double)
         
         var title: String {
             switch self {
@@ -35,7 +35,23 @@ class BMICalculatorViewController: UIViewController {
                 return "100~250cm 범위로 입력해주세요."
             case .invalidWeightRange:
                 return "30~200kg 범위로 입력해주세요."
-            case .calculatedValue(type: let type):
+            case .calculatedValue(bmiValue: let value):
+                var type = ""
+                switch value {
+                case 30...:
+                    type = "고도비만"
+                case 25..<30:
+                    type = "경도비만"
+                case 23..<25:
+                    type = "과체중"
+                case 18.5..<23:
+                    type = "정상"
+                case ..<18.5:
+                    type = "저체중"
+                default:
+                    type = ""
+                }
+                
                 return "\(type)입니다."
             }
         }
@@ -92,7 +108,7 @@ class BMICalculatorViewController: UIViewController {
         if let height = Double(heightStr), let weight = Double(weightStr) {
             if height < 100 || height > 250 {
                 setAlert(type: .invalidHeightRange)
-            } else if weight < 30 || weight > 200{
+            } else if weight < 30 || weight > 200 {
                 setAlert(type: .invalidWeightRange)
             } else {
                 presentCalculateBMIValue(height: height, weight: weight)
@@ -119,27 +135,8 @@ class BMICalculatorViewController: UIViewController {
     }
     
     private func presentCalculateBMIValue(height: Double, weight: Double){
-        
-        var value = ""
-        
         let bmi = weight / ((height * height) * 0.0001)
-        
-        switch bmi {
-        case 30...:
-            value = "고도비만"
-        case 25..<30:
-            value = "경도비만"
-        case 23..<25:
-            value = "과체중"
-        case 18.5..<23:
-            value = "정상"
-        case ..<18.5:
-            value = "저체중"
-        default:
-            value = ""
-        }
-        
-        setAlert(type:.calculatedValue(type: value))
+        setAlert(type:.calculatedValue(bmiValue: bmi))
     }
     
     private func setTextFieldUI(textField: UITextField, backgroundView uiView: UIView, placehorder: String = ""){
