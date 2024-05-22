@@ -9,6 +9,38 @@ import UIKit
 
 class BMICalculatorViewController: UIViewController {
     
+    enum AlertType {
+        case isEmpty
+        case invalidValue
+        case invalidHeightRange
+        case invalidWeightRange
+        case calculatedValue(type: String)
+        
+        var title: String {
+            switch self {
+            case .isEmpty, .invalidValue, .invalidHeightRange, .invalidWeightRange:
+                return "오류"
+            case .calculatedValue:
+                return "확인"
+            }
+        }
+        
+        var message: String {
+            switch self {
+            case .isEmpty:
+                return "빈칸이 입력되었습니다."
+            case .invalidValue:
+                return "다시 입력해주세요."
+            case .invalidHeightRange:
+                return "100~250cm 범위로 입력해주세요."
+            case .invalidWeightRange:
+                return "30~200kg 범위로 입력해주세요."
+            case .calculatedValue(type: let type):
+                return "\(type)입니다."
+            }
+        }
+    }
+    
     @IBOutlet var subTitleLabel: UILabel!
     @IBOutlet var heightView: UIView!
     @IBOutlet var heightTextField: UITextField!
@@ -39,7 +71,7 @@ class BMICalculatorViewController: UIViewController {
     
     @IBAction func randomButtonTapped(_ sender: UIButton) {
         let randomHeight = Double.random(in: 100...250)
-        let randomWeight = Double.random(in: 10...200)
+        let randomWeight = Double.random(in: 30...200)
         
         heightTextField.text = String(format: "%.2f", randomHeight)
         weightTextField.text = String(format: "%.2f", randomWeight)
@@ -48,19 +80,26 @@ class BMICalculatorViewController: UIViewController {
     
     @IBAction func presentValue(_ sender: Any) {
         guard let heightStr = heightTextField.text, let weightStr = weightTextField.text else {
-            setAlert(title: "오류", message: "다시 입력해주세요.")
+            setAlert(type: .invalidValue)
             return
         }
         
         if heightStr.isEmpty || weightStr.isEmpty {
-            setAlert(title: "오류", message: "빈칸이 입력되었습니다.")
+            setAlert(type: .isEmpty)
             return
         }
         
         if let height = Double(heightStr), let weight = Double(weightStr) {
-            presentCalculateBMIValue(height: height, weight: weight)
+            if height < 100 || height > 250 {
+                setAlert(type: .invalidHeightRange)
+            } else if weight < 30 || weight > 200{
+                setAlert(type: .invalidWeightRange)
+            } else {
+                presentCalculateBMIValue(height: height, weight: weight)
+            }
+            
         } else {
-            setAlert(title: "오류", message: "다시 입력해주세요.")
+            setAlert(type: .invalidValue)
         }
         
     }
@@ -100,7 +139,7 @@ class BMICalculatorViewController: UIViewController {
             value = ""
         }
         
-        setAlert(title: "결과", message: value)
+        setAlert(type:.calculatedValue(type: value))
     }
     
     private func setTextFieldUI(textField: UITextField, backgroundView uiView: UIView, placehorder: String = ""){
@@ -111,8 +150,8 @@ class BMICalculatorViewController: UIViewController {
         textField.placeholder = placehorder
     }
     
-    private func setAlert(title: String, message: String){
-        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+    private func setAlert(type: AlertType){
+        let alert = UIAlertController(title: type.title, message: type.message, preferredStyle: .alert)
         let action = UIAlertAction(title: "확인", style: .cancel)
         alert.addAction(action)
         
