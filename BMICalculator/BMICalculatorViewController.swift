@@ -70,6 +70,7 @@ class BMICalculatorViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
+        setData()
     }
     
     private func setupUI(){
@@ -83,12 +84,17 @@ class BMICalculatorViewController: UIViewController {
         resultButton.titleLabel?.font = .systemFont(ofSize: 18)
     }
     
+    private func setData(){
+        heightTextField.text = convertDoubleToString(UserDefaults.standard.double(forKey: "height"))
+        weightTextField.text = convertDoubleToString(UserDefaults.standard.double(forKey: "weight"))
+    }
+    
     @IBAction func randomButtonTapped(_ sender: UIButton) {
         let randomHeight = Double.random(in: 100...250)
         let randomWeight = Double.random(in: 30...200)
         
-        heightTextField.text = String(format: "%.2f", randomHeight)
-        weightTextField.text = String(format: "%.2f", randomWeight)
+        heightTextField.text = convertDoubleToString(randomHeight)
+        weightTextField.text = convertDoubleToString(randomWeight)
         presentCalculateBMIValue(height: randomHeight, weight: randomWeight)
     }
     
@@ -135,6 +141,7 @@ class BMICalculatorViewController: UIViewController {
     private func presentCalculateBMIValue(height: Double, weight: Double){
         let bmi = weight / ((height * height) * 0.0001)
         setAlert(type:.calculatedValue(bmiValue: bmi))
+        saveData(height: height, weight: weight)
     }
     
     private func setTextFieldUI(textField: UITextField, backgroundView uiView: UIView, placehorder: String = ""){
@@ -151,5 +158,15 @@ class BMICalculatorViewController: UIViewController {
         alert.addAction(action)
         
         present(alert, animated: true)
+    }
+    
+    private func saveData(height: Double, weight: Double){
+        print("💾 saved")
+        UserDefaults.standard.set(height, forKey: "height")
+        UserDefaults.standard.set(weight, forKey: "weight")
+    }
+    
+    private func convertDoubleToString(_ value: Double) -> String{
+        return String(format: "%.2f", value)
     }
 }
